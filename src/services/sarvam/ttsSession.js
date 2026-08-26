@@ -7,7 +7,7 @@ import { getSarvamClient } from './client.js';
  * Streaming TTS via Sarvam WebSocket SDK.
  * Emits: 'audio' { audioBase64, codec }, 'done', 'error', 'close'
  *
- * Note: bulbul:v3 speakers differ from v2. Use `priya` (female) — not v2 `anushka`.
+ * Note: bulbul:v3 — English female voice `ishita` (not v2 `anushka`).
  */
 export class SarvamTtsSession extends EventEmitter {
   /**

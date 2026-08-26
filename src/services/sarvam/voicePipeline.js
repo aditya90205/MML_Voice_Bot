@@ -255,7 +255,7 @@ export class VoicePipeline extends EventEmitter {
       });
 
       if (!extracted.ok) {
-        const retry = `माफ़ कीजिए, मैं सही से समझ नहीं पाई। ${step.question}`;
+        const retry = `Sorry, I didn't catch that clearly. ${step.question}`;
         logger.info({ callId: this.callId, field: step.field }, 'Field extract failed — re-asking');
         await this.speakText(retry, { persist: true });
         return;

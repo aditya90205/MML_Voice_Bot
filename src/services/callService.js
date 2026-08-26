@@ -98,7 +98,7 @@ export function triggerAiCall({
     callId: call.callId,
     userId: call.userId,
     type: 'INCOMING_AI_CALL',
-    callerName: 'AI Assistant',
+    callerName: 'Make My Lagan',
     language: call.language,
     ringTimeoutMs: env.CALL_RING_TIMEOUT_MS,
     createdAt: call.createdAt,
@@ -181,8 +181,31 @@ export async function acceptCall(callId, socketId) {
     emitToCallSocket(call, SOCKET_EVENTS.AI_SPEAKING, { callId, speaking });
   });
 
+  pipeline.on('ai_interrupted', () => {
+    logger.info({ callId }, 'Notifying mobile: AI interrupted (barge-in)');
+    emitToCallSocket(call, SOCKET_EVENTS.AI_INTERRUPTED, { callId });
+    emitToCallSocket(call, SOCKET_EVENTS.AI_SPEAKING, { callId, speaking: false });
+    emitToCallSocket(call, SOCKET_EVENTS.LISTENING, { callId, listening: true });
+  });
+
   pipeline.on('listening', ({ listening }) => {
     emitToCallSocket(call, SOCKET_EVENTS.LISTENING, { callId, listening });
+  });
+
+  pipeline.on('intake_updated', (payload) => {
+    emitToCallSocket(call, SOCKET_EVENTS.INTAKE_UPDATED, payload);
+  });
+
+  pipeline.on('interview_complete', (payload) => {
+    logger.info({ callId, intake: payload?.intake }, 'MML interview complete — ending call');
+    emitToCallSocket(call, SOCKET_EVENTS.INTERVIEW_COMPLETE, payload);
+    // Hang up after thank-you audio finishes
+    setTimeout(() => {
+      endCall(callId, {
+        status: CALL_STATUS.ENDED,
+        reason: CALL_END_REASONS.INTERVIEW_COMPLETE,
+      });
+    }, 400);
   });
 
   pipeline.on('error', (err) => {
@@ -341,6 +364,7 @@ export async function endCall(
     status: ended.status,
     reason: ended.endReason,
     endedAt: ended.endedAt,
+    intake: ended.intake || null,
   });
 
   logger.info({ callId, status: ended.status, reason: ended.endReason }, 'AI call ended');

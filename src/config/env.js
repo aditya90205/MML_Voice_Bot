@@ -30,18 +30,22 @@ const envSchema = z.object({
   SARVAM_STT_SAMPLE_RATE: z.coerce.number().int().positive().default(16000),
   SARVAM_CHAT_MODEL: z.string().default('sarvam-105b'),
   SARVAM_TTS_MODEL: z.string().default('bulbul:v3'),
-  SARVAM_TTS_SPEAKER: z.string().default('shubh'),
+  SARVAM_TTS_SPEAKER: z.string().default('priya'),
   SARVAM_TTS_LANGUAGE: z.string().default('hi-IN'),
   SARVAM_TTS_CODEC: z.string().default('mp3'),
+  /** Speeding factor for bulbul:v3 (0.5–2.0). 1.0 = normal; ~1.15 = a bit faster. */
+  SARVAM_TTS_PACE: z.coerce.number().min(0.5).max(2.0).default(1.15),
 
   AI_SYSTEM_PROMPT: z
     .string()
     .default(
-      'आप हमारे मोबाइल ऐप के सहायक हैं। हमेशा हिंदी में संक्षिप्त और स्वाभाविक जवाब दें (1-3 वाक्य)। उपयोगकर्ता के बोलने के बाद ही उत्तर दें।'
+      'आप Make My Lagan (MML) की matrimony intake एजेंट हैं। केवल निर्धारित सवाल पूछकर नाम, लिंग, जन्म तिथि और पार्टनर की ज़रूरतें इकट्ठा करें। हिंदी में संक्षिप्त और विनम्र रहें।'
     ),
   AI_GREETING_TEXT: z
     .string()
-    .default('नमस्ते! मैं आपका AI सहायक हूँ। आज मैं आपकी कैसे मदद कर सकता हूँ?'),
+    .default(
+      'नमस्ते! मैं Make My Lagan, यानी MML की ओर से बात कर रही हूँ। हम आपकी शादी संबंधी ज़रूरतें समझना चाहते हैं। कुछ छोटे सवाल पूछूँगी, कृपया एक-एक करके जवाब दीजिए।'
+    ),
 });
 
 const parsed = envSchema.safeParse(process.env);

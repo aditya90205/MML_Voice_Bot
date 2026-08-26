@@ -129,7 +129,7 @@ export class SarvamSttSession extends EventEmitter {
 
     if (alreadyWav) {
       this.#sendWavBase64(audioBase64, sampleRate);
-      this.#armSilenceFlush();
+      if (meta.hasSpeechEnergy) this.#armSilenceFlush();
       return;
     }
 
@@ -143,7 +143,10 @@ export class SarvamSttSession extends EventEmitter {
       this.#flushPcmBatch(sampleRate);
     }
 
-    this.#armSilenceFlush();
+    // Only start end-of-utterance timer when chunk had speech energy.
+    if (meta.hasSpeechEnergy) {
+      this.#armSilenceFlush();
+    }
   }
 
   flush() {
@@ -192,11 +195,11 @@ export class SarvamSttSession extends EventEmitter {
 
   #armSilenceFlush() {
     this.#clearFlushTimer();
-    // If user pauses speaking ~900ms, finalize the utterance.
+    // Allow 1–2s user thinking pause mid-phrase before finalizing.
     this.flushTimer = setTimeout(() => {
       if (this.paused || !this.ready) return;
       this.flush();
-    }, 900);
+    }, 2000);
   }
 
   #clearFlushTimer() {

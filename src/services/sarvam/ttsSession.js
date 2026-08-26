@@ -7,7 +7,7 @@ import { getSarvamClient } from './client.js';
  * Streaming TTS via Sarvam WebSocket SDK.
  * Emits: 'audio' { audioBase64, codec }, 'done', 'error', 'close'
  *
- * Note: bulbul:v3 speakers differ from v2. Use `shubh` (not `anushka`).
+ * Note: bulbul:v3 speakers differ from v2. Use `priya` (female) — not v2 `anushka`.
  */
 export class SarvamTtsSession extends EventEmitter {
   /**
@@ -49,7 +49,7 @@ export class SarvamTtsSession extends EventEmitter {
       data: {
         speaker: this.speaker,
         language_code: this.language,
-        pace: 1.0,
+        pace: env.SARVAM_TTS_PACE,
         output_audio_codec: env.SARVAM_TTS_CODEC,
         min_buffer_size: 30,
         max_chunk_length: 180,
@@ -111,13 +111,17 @@ export async function synthesizeSpeech(text, options = {}) {
   const language = options.language || env.SARVAM_TTS_LANGUAGE;
   const speaker = options.speaker || env.SARVAM_TTS_SPEAKER;
 
-  logger.info({ language, speaker, chars: text.length }, 'Sarvam TTS REST convert');
+  logger.info(
+    { language, speaker, pace: env.SARVAM_TTS_PACE, chars: text.length },
+    'Sarvam TTS REST convert'
+  );
 
   const response = await client.textToSpeech.convert({
     text,
     target_language_code: language,
     model: env.SARVAM_TTS_MODEL,
     speaker,
+    pace: env.SARVAM_TTS_PACE,
   });
 
   // SDK may return audios[] as base64 strings, or nested objects.

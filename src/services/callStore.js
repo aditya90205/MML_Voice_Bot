@@ -1,5 +1,6 @@
 import { CALL_STATUS } from '../config/constants.js';
 import { createId } from '../utils/id.js';
+import { createEmptyIntake } from './matrimony/slots.js';
 
 /**
  * In-memory call state.
@@ -32,6 +33,8 @@ class CallStore {
       systemPrompt,
       greetingText,
       metadata,
+      intake: createEmptyIntake(),
+      interviewStep: 'greeting',
       createdAt: now,
       updatedAt: now,
       ringingAt: now,

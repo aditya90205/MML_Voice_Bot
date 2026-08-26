@@ -49,6 +49,35 @@ After Accept, backend sends:
 
 If the app does **not** decode/play `ai_audio_chunk`, the call looks connected but there is **no voice**.
 
+### Barge-in (user interrupts AI) — required for natural calls
+
+Keep the **microphone streaming for the whole call** (including while AI talks).
+
+When user speaks over AI, backend emits:
+
+- `ai_interrupted` `{ callId }` → **immediately stop/clear AI audio player**
+- `ai_speaking` `{ speaking: false }`
+- `listening` `{ listening: true }`
+
+Then backend listens to the user and replies based on what they said.
+
+```javascript
+socket.on('ai_interrupted', ({ callId }) => {
+  console.log('AI interrupted — stop playback', callId);
+  stopAiAudioPlayback(); // stop Sound / clear queue
+});
+
+// When AI audio file finishes normally:
+socket.emit('playback_done', { callId });
+```
+
+Do **mute/pause the mic** while `ai_speaking: true`, and resume only on `listening: true`.
+
+This avoids the phone speaker (AI voice) being recorded as user speech.
+
+Mid-call barge-in (talk-over-AI) needs acoustic echo cancellation on device; current backend uses reliable half-duplex:
+AI finishes → then listen → then reply.
+
 Minimal player handler (example):
 
 ```javascript

@@ -21,7 +21,10 @@ export const SOCKET_EVENTS = Object.freeze({
   TRANSCRIPT: 'transcript',
   AI_AUDIO_CHUNK: 'ai_audio_chunk',
   AI_SPEAKING: 'ai_speaking',
+  AI_INTERRUPTED: 'ai_interrupted',
   LISTENING: 'listening',
+  INTAKE_UPDATED: 'intake_updated',
+  INTERVIEW_COMPLETE: 'interview_complete',
   PONG: 'server_pong',
   ERROR: 'error',
 });
@@ -45,4 +48,5 @@ export const CALL_END_REASONS = Object.freeze({
   IDLE: 'idle',
   DISCONNECT: 'disconnect',
   ERROR: 'error',
+  INTERVIEW_COMPLETE: 'interview_complete',
 });
